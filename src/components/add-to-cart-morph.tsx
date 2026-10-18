@@ -2,6 +2,7 @@
 import { useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Check, ShoppingBag, SpinnerGap, WarningCircle } from "@phosphor-icons/react";
+import { useT } from "@/i18n/context";
 
 type Phase = "idle" | "loading" | "done" | "error";
 
@@ -11,8 +12,8 @@ type Phase = "idle" | "loading" | "done" | "error";
  */
 export function AddToCartMorph({
   onAdd,
-  label = "В кошик",
-  doneLabel = "Додано",
+  label,
+  doneLabel,
   className = "",
   size = "md",
 }: {
@@ -22,6 +23,9 @@ export function AddToCartMorph({
   className?: string;
   size?: "sm" | "md";
 }) {
+  const t = useT();
+  const lbl = label ?? t.card.add;
+  const done = doneLabel ?? t.card.added;
   const [phase, setPhase] = useState<Phase>("idle");
   const [msg, setMsg] = useState<string>("");
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -34,7 +38,7 @@ export function AddToCartMorph({
     setPhase("loading");
     const r = await onAdd();
     setPhase(r.ok ? "done" : "error");
-    setMsg(r.ok ? "" : (r.message ?? "Не вдалося додати"));
+    setMsg(r.ok ? "" : (r.message ?? t.card.addFail));
     timer.current = setTimeout(() => setPhase("idle"), r.ok ? 1800 : 2600);
   }
 
@@ -45,7 +49,7 @@ export function AddToCartMorph({
         type="button"
         onClick={click}
         aria-live="polite"
-        aria-label={phase === "loading" ? "Додаємо в кошик" : phase === "done" ? doneLabel : label}
+        aria-label={phase === "loading" ? t.card.adding : phase === "done" ? done : lbl}
         animate={{ width: collapsed ? h : "100%" }}
         transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 420, damping: 32 }}
         style={{ height: h }}
@@ -62,10 +66,10 @@ export function AddToCartMorph({
             transition={{ duration: 0.16 }}
             className="flex items-center gap-2 whitespace-nowrap"
           >
-            {phase === "idle" && (<><ShoppingBag size={16} />{label}</>)}
+            {phase === "idle" && (<><ShoppingBag size={16} />{lbl}</>)}
             {phase === "loading" && <SpinnerGap size={18} className="animate-spin motion-reduce:animate-none" />}
-            {phase === "done" && (<><Check size={16} weight="bold" />{doneLabel}</>)}
-            {phase === "error" && (<><WarningCircle size={16} />Помилка</>)}
+            {phase === "done" && (<><Check size={16} weight="bold" />{done}</>)}
+            {phase === "error" && (<><WarningCircle size={16} />{t.card.error}</>)}
           </motion.span>
         </AnimatePresence>
       </motion.button>

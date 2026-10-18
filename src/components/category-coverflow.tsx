@@ -1,6 +1,7 @@
 "use client";
 import Image from "next/image";
-import Link from "next/link";
+import Link from "./loc-link";
+import { useT } from "@/i18n/context";
 import { useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { ArrowLeft, ArrowRight } from "@phosphor-icons/react";
@@ -14,6 +15,7 @@ export type CoverItem = { id: number; title: string; count: number; image: strin
  */
 export function CategoryCoverFlow({ items }: { items: CoverItem[] }) {
   // Починаємо із центральної категорії: з обох боків є сусіди, композиція симетрична
+  const t = useT();
   const [active, setActive] = useState(Math.floor((items.length - 1) / 2));
   const reduce = useReducedMotion();
   const go = (i: number) => setActive(Math.max(0, Math.min(items.length - 1, i)));
@@ -21,8 +23,8 @@ export function CategoryCoverFlow({ items }: { items: CoverItem[] }) {
   return (
     <div
       role="group"
-      aria-roledescription="карусель"
-      aria-label="Категорії"
+      aria-roledescription={t.carousel.role}
+      aria-label={t.carousel.label}
       tabIndex={0}
       onKeyDown={(e) => {
         if (e.key === "ArrowLeft") go(active - 1);
@@ -73,9 +75,9 @@ export function CategoryCoverFlow({ items }: { items: CoverItem[] }) {
               aria-hidden={abs > 2 ? true : undefined}
             >
               {isActive ? (
-                <Link href={`/catalog?cat=${c.id}`} className="absolute inset-0 block" aria-label={`${c.title}, товарів: ${c.count}`}>{body}</Link>
+                <Link href={`/catalog?cat=${c.id}`} className="absolute inset-0 block" aria-label={t.carousel.open(c.title, c.count)}>{body}</Link>
               ) : (
-                <button type="button" onClick={() => go(i)} className="absolute inset-0 block text-left" aria-label={`Показати категорію ${c.title}`} tabIndex={abs > 2 ? -1 : 0}>{body}</button>
+                <button type="button" onClick={() => go(i)} className="absolute inset-0 block text-left" aria-label={t.carousel.show(c.title)} tabIndex={abs > 2 ? -1 : 0}>{body}</button>
               )}
             </motion.div>
           );
@@ -83,11 +85,11 @@ export function CategoryCoverFlow({ items }: { items: CoverItem[] }) {
       </motion.div>
 
       <div className="mt-6 flex items-center justify-center gap-5">
-        <button type="button" onClick={() => go(active - 1)} disabled={active === 0} aria-label="Попередня категорія" className="grid size-11 place-items-center border border-ink hover:bg-ink hover:text-paper disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-ink"><ArrowLeft size={18} /></button>
+        <button type="button" onClick={() => go(active - 1)} disabled={active === 0} aria-label={t.carousel.prev} className="grid size-11 place-items-center border border-ink hover:bg-ink hover:text-paper disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-ink"><ArrowLeft size={18} /></button>
         <div className="flex items-center gap-1.5" aria-hidden>
           {items.map((_, i) => (<button key={i} tabIndex={-1} onClick={() => go(i)} className={`h-[3px] transition-all ${i === active ? "w-8 bg-ink" : "w-3 bg-ink/30 hover:bg-ink/60"}`} />))}
         </div>
-        <button type="button" onClick={() => go(active + 1)} disabled={active === items.length - 1} aria-label="Наступна категорія" className="grid size-11 place-items-center border border-ink hover:bg-ink hover:text-paper disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-ink"><ArrowRight size={18} /></button>
+        <button type="button" onClick={() => go(active + 1)} disabled={active === items.length - 1} aria-label={t.carousel.next} className="grid size-11 place-items-center border border-ink hover:bg-ink hover:text-paper disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-ink"><ArrowRight size={18} /></button>
       </div>
     </div>
   );

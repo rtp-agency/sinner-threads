@@ -1,6 +1,7 @@
 import "server-only";
 import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 import { SITE } from "./site";
+import { href, type Lang } from "@/i18n/config";
 
 /** Тестова оплата і службові сторінки: локально завжди, на проді тільки з ALLOW_DEMO=1 (превʼю без реальних грошей). */
 export const demoEnabled = () => process.env.NODE_ENV !== "production" || process.env.ALLOW_DEMO === "1";
@@ -27,6 +28,7 @@ const safeEq = (a: string, b: string) => {
 
 export type PayOrder = {
   orderId: number;
+  lang: Lang;
   token: string;
   amount: number;
   lines: { name: string; qty: number; price: number }[];
@@ -47,10 +49,10 @@ export function liqpayForm(o: PayOrder): PaymentForm {
     action: "pay",
     amount: o.amount,
     currency: "UAH",
-    description: `Замовлення ${SITE.name} №${o.orderId}`,
+    description: o.lang === "en" ? `${SITE.name} order #${o.orderId}` : `Замовлення ${SITE.name} №${o.orderId}`,
     order_id: refFor(o.orderId),
-    language: "uk",
-    result_url: `${SITE.url}/order/${o.orderId}?t=${o.token}`,
+    language: o.lang,
+    result_url: `${SITE.url}${href(o.lang, `/order/${o.orderId}`)}?t=${o.token}`,
     server_url: `${SITE.url}/api/payments/callback`,
     sandbox: process.env.LIQPAY_SANDBOX === "1" ? 1 : undefined,
   };
@@ -88,9 +90,9 @@ export function wayforpayForm(o: PayOrder): PaymentForm {
     orderDate: String(date),
     amount: String(o.amount),
     currency: "UAH",
-    returnUrl: `${SITE.url}/order/${o.orderId}?t=${o.token}`,
+    returnUrl: `${SITE.url}${href(o.lang, `/order/${o.orderId}`)}?t=${o.token}`,
     serviceUrl: `${SITE.url}/api/payments/callback`,
-    language: "UA",
+    language: o.lang === "en" ? "EN" : "UA",
     clientFirstName: o.clientName,
     clientPhone: o.phone,
   };

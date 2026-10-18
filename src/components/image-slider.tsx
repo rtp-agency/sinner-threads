@@ -1,12 +1,14 @@
 "use client";
 import Image from "next/image";
 import { useRef, useState } from "react";
+import { useT } from "@/i18n/context";
 
 /**
  * Фото товару на картці. Мишка: рух по картці перемикає кадри (як на маркетплейсах).
  * Дотик: нативний свайп із scroll-snap. Один кадр: звичайне фото без обв'язки.
  */
 export function ImageSlider({ images, alt, dim, priority = false }: { images: string[]; alt: string; dim?: boolean; priority?: boolean }) {
+  const t = useT();
   const box = useRef<HTMLDivElement>(null);
   const [idx, setIdx] = useState(0);
   const n = images.length;
@@ -34,7 +36,7 @@ export function ImageSlider({ images, alt, dim, priority = false }: { images: st
           <div key={src} className="relative h-full w-full shrink-0 snap-center">
             <Image
               src={src}
-              alt={i === 0 ? alt : `${alt}, фото ${i + 1}`}
+              alt={i === 0 ? alt : `${alt}, ${t.card.photo(i + 1)}`}
               fill
               priority={priority && i === 0}
               loading={i === 0 && priority ? undefined : "lazy"}

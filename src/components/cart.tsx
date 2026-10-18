@@ -1,5 +1,7 @@
 "use client";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useLang } from "@/i18n/context";
+import { useT } from "@/i18n/context";
 
 export type CartLine = {
   productId: number;
@@ -34,19 +36,21 @@ const totals = (lines: CartLine[]) => ({
 
 /** Кошик живе на сервері (cookie st_cart, /api/cart). Тут лише дзеркало з оптимістичними оновленнями. */
 export function CartProvider({ children }: { children: React.ReactNode }) {
+  const lang = useLang();
+  const t = useT();
   const [cart, setCart] = useState<CartView>(EMPTY);
   const [ready, setReady] = useState(false);
 
   const call = useCallback(async (init?: RequestInit, qs = ""): Promise<Result & { cart?: CartView }> => {
     try {
-      const res = await fetch(`/api/cart${qs}`, { cache: "no-store", ...init, headers: { "Content-Type": "application/json", ...init?.headers } });
+      const res = await fetch(`/api/cart${qs}`, { cache: "no-store", ...init, headers: { "Content-Type": "application/json", "x-lang": lang, ...init?.headers } });
       const data = await res.json();
-      if (!res.ok) return { ok: false, message: data.message ?? "Помилка" };
+      if (!res.ok) return { ok: false, message: data.message ?? t.checkout.err };
       return { ok: true, cart: data as CartView };
     } catch {
-      return { ok: false, message: "Немає зв’язку з сервером" };
+      return { ok: false, message: t.checkout.noNet };
     }
-  }, []);
+  }, [lang, t]);
 
   const refresh = useCallback(async () => {
     const r = await call();

@@ -2,6 +2,9 @@ import "server-only";
 import { cookies } from "next/headers";
 import { randomUUID } from "node:crypto";
 import { getProduct } from "./mydrop";
+import { dict } from "@/i18n/dict";
+import { tr } from "@/i18n/glossary";
+import type { Lang } from "@/i18n/config";
 import { getCartLines, setCartLines, type CartLineRec } from "./store";
 
 const COOKIE = "st_cart";
@@ -30,7 +33,8 @@ async function cartId(create: boolean): Promise<string | null> {
 }
 
 /** Збирає кошик із актуального каталогу: ціни і залишки завжди свіжі, зниклі позиції прибираються. */
-export async function hydrate(recs: CartLineRec[]): Promise<{ view: CartView; clean: CartLineRec[] }> {
+export async function hydrate(recs: CartLineRec[], lang: Lang = "uk"): Promise<{ view: CartView; clean: CartLineRec[] }> {
+  const a = dict(lang).api;
   const lines: CartLineView[] = [];
   const clean: CartLineRec[] = [];
   const notices: string[] = [];
@@ -38,11 +42,11 @@ export async function hydrate(recs: CartLineRec[]): Promise<{ view: CartView; cl
     const p = await getProduct(r.productId);
     const v = p?.variants.find((x) => x.id === r.variantId);
     if (!p || !v || v.stock <= 0) {
-      notices.push(`${p?.title ?? "Товар"} більше недоступний і прибраний з кошика`);
+      notices.push(a.gone(p ? tr(p.title, lang) : a.goneItem));
       continue;
     }
     const qty = Math.min(r.qty, v.stock);
-    if (qty < r.qty) notices.push(`${p.title}, ${v.title}: залишилось ${v.stock} шт.`);
+    if (qty < r.qty) notices.push(a.onlyLeft(tr(p.title, lang), tr(v.title, lang), v.stock));
     lines.push({ productId: p.id, variantId: v.id, title: p.title, size: v.title, price: p.price, image: p.images[0], max: v.stock, qty });
     clean.push({ productId: p.id, variantId: v.id, qty });
   }
@@ -52,20 +56,20 @@ export async function hydrate(recs: CartLineRec[]): Promise<{ view: CartView; cl
   };
 }
 
-export async function getCart(): Promise<CartView> {
+export async function getCart(lang: Lang = "uk"): Promise<CartView> {
   const id = await cartId(false);
   const recs = id ? await getCartLines(id) : [];
-  const { view, clean } = await hydrate(recs);
+  const { view, clean } = await hydrate(recs, lang);
   if (id && clean.length !== recs.length) await saveLines(id, clean);
   return view;
 }
 
 const saveLines = setCartLines;
 
-export async function mutateCart(fn: (lines: CartLineRec[]) => CartLineRec[]): Promise<CartView> {
+export async function mutateCart(fn: (lines: CartLineRec[]) => CartLineRec[], lang: Lang = "uk"): Promise<CartView> {
   const id = (await cartId(true))!;
   const cur = await getCartLines(id);
-  const { view, clean } = await hydrate(fn(structuredClone(cur)).slice(0, MAX_LINES));
+  const { view, clean } = await hydrate(fn(structuredClone(cur)).slice(0, MAX_LINES), lang);
   await saveLines(id, clean);
   return view;
 }
