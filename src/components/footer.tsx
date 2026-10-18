@@ -36,7 +36,7 @@ export function Footer() {
         </div>
       </div>
       <div className="stitch-t">
-        <p className="mx-auto max-w-[1400px] px-4 py-4 font-mono text-[11px] uppercase tracking-widest text-mute md:px-8">
+        <p className="pb-safe mx-auto max-w-[1400px] px-4 py-4 font-mono text-[11px] uppercase tracking-widest text-mute md:px-8">
           © {new Date().getFullYear()} {SITE.name}
         </p>
       </div>

@@ -27,6 +27,7 @@ const safeEq = (a: string, b: string) => {
 
 export type PayOrder = {
   orderId: number;
+  token: string;
   amount: number;
   lines: { name: string; qty: number; price: number }[];
   phone: string;
@@ -49,7 +50,7 @@ export function liqpayForm(o: PayOrder): PaymentForm {
     description: `Замовлення ${SITE.name} №${o.orderId}`,
     order_id: refFor(o.orderId),
     language: "uk",
-    result_url: `${SITE.url}/order/${o.orderId}`,
+    result_url: `${SITE.url}/order/${o.orderId}?t=${o.token}`,
     server_url: `${SITE.url}/api/payments/callback`,
     sandbox: process.env.LIQPAY_SANDBOX === "1" ? 1 : undefined,
   };
@@ -61,8 +62,8 @@ export function verifyLiqpay(data: string, signature: string) {
   const priv = process.env.LIQPAY_PRIVATE_KEY;
   if (!priv) return null;
   if (!safeEq(sha1b64(priv + data + priv), signature)) return null;
-  const j = JSON.parse(Buffer.from(data, "base64").toString("utf8")) as { status: string; order_id: string };
-  return { orderId: orderIdFromRef(j.order_id), paid: j.status === "success" || j.status === "sandbox" };
+  const j = JSON.parse(Buffer.from(data, "base64").toString("utf8")) as { status: string; order_id: string; amount: number; currency: string };
+  return { orderId: orderIdFromRef(j.order_id), paid: j.status === "success" || j.status === "sandbox", amount: Number(j.amount), currency: String(j.currency) };
 }
 
 // ---------- WayForPay ----------
@@ -87,7 +88,7 @@ export function wayforpayForm(o: PayOrder): PaymentForm {
     orderDate: String(date),
     amount: String(o.amount),
     currency: "UAH",
-    returnUrl: `${SITE.url}/order/${o.orderId}`,
+    returnUrl: `${SITE.url}/order/${o.orderId}?t=${o.token}`,
     serviceUrl: `${SITE.url}/api/payments/callback`,
     language: "UA",
     clientFirstName: o.clientName,
@@ -111,6 +112,8 @@ export function verifyWayforpay(b: Record<string, unknown>) {
   return {
     orderId: orderIdFromRef(ref),
     paid: b.transactionStatus === "Approved",
+    amount: Number(b.amount),
+    currency: String(b.currency),
     reply: { orderReference: ref, status, time, signature: hmacMd5(secret, [ref, status, time].join(";")) },
   };
 }
@@ -118,5 +121,5 @@ export function verifyWayforpay(b: Record<string, unknown>) {
 // ---------- Demo ----------
 /** Тестова оплата без платіжки: ведемо на нашу сторінку з кнопками «успіх / відхилено». */
 export function demoForm(o: PayOrder): PaymentForm {
-  return { url: `/pay/demo/${o.orderId}`, method: "GET", fields: {} };
+  return { url: `/pay/demo/${o.orderId}`, method: "GET", fields: { t: o.token } };
 }

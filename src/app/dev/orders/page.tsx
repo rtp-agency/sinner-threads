@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { listOrders } from "@/lib/orders";
 import { money } from "@/lib/format";
 import { demoEnabled } from "@/lib/payments";
+import { adminOk } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Замовлення (dev)", robots: { index: false } };
@@ -9,8 +10,9 @@ export const metadata = { title: "Замовлення (dev)", robots: { index: 
 const LABEL = { awaiting_payment: "Очікує оплату", paid: "Оплачено", payment_failed: "Оплата не пройшла", placed: "Прийнято" } as const;
 
 /** Службова сторінка для розробки: перелік локальних замовлень. У production недоступна. */
-export default async function DevOrders() {
-  if (!demoEnabled()) notFound();
+export default async function DevOrders({ searchParams }: PageProps<"/dev/orders">) {
+  const key = (await searchParams).key;
+  if (!demoEnabled() || !adminOk(typeof key === "string" ? key : undefined)) notFound();
   const orders = await listOrders();
   return (
     <div className="mx-auto max-w-4xl px-4 py-12">

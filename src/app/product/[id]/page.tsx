@@ -30,9 +30,9 @@ export default async function ProductPage({ params }: PageProps<"/product/[id]">
       </nav>
 
       <div className="grid gap-10 lg:grid-cols-[1.3fr_1fr]">
-        <div className={`grid gap-3 ${p.images.length > 1 ? "grid-cols-2" : ""}`}>
+        <div className={`-mx-4 flex snap-x snap-mandatory overflow-x-auto [scrollbar-width:none] md:mx-0 md:gap-3 lg:grid lg:overflow-visible ${p.images.length > 1 ? "lg:grid-cols-2" : ""}`}>
           {p.images.map((src, i) => (
-            <div key={src} className={`relative aspect-[4/5] overflow-hidden bg-soft ${i === 0 && p.images.length > 1 ? "col-span-2" : ""}`}>
+            <div key={src} className={`relative aspect-[4/5] max-h-[58svh] w-full shrink-0 snap-center overflow-hidden bg-soft md:max-h-none md:w-[85%] lg:w-auto ${i === 0 && p.images.length > 1 ? "lg:col-span-2" : ""}`}>
               <Image src={src} alt={`${p.title}, фото ${i + 1}`} fill priority={i === 0} sizes="(min-width:1024px) 45vw, 100vw" className="object-cover" />
             </div>
           ))}

@@ -18,7 +18,7 @@ function TextField({ name, label, err, ...rest }: FieldProps & { err?: string })
   );
 }
 
-export function CheckoutForm({ cardEnabled }: { cardEnabled: boolean }) {
+export function CheckoutForm({ cardEnabled, demo }: { cardEnabled: boolean; demo: boolean }) {
   const { lines, total, ready, refresh } = useCart();
   const router = useRouter();
   const [payment, setPayment] = useState<"cod" | "card">("cod");
@@ -64,7 +64,7 @@ export function CheckoutForm({ cardEnabled }: { cardEnabled: boolean }) {
         return;
       }
       void refresh();
-      router.push(`/order/${data.orderId}`);
+      router.push(data.path);
     } catch {
       setErr({ message: "Немає зв’язку з сервером. Перевірте інтернет і спробуйте ще раз." });
       setBusy(false);
@@ -78,6 +78,7 @@ export function CheckoutForm({ cardEnabled }: { cardEnabled: boolean }) {
     <div className="mx-auto grid max-w-[1400px] gap-12 px-4 py-10 md:px-8 lg:grid-cols-[1.4fr_1fr]">
       <form onSubmit={onSubmit} noValidate className="space-y-8">
         <h1 className="font-display text-5xl">Оформлення</h1>
+        {demo && <p role="note" className="stitch p-3 font-mono text-xs uppercase tracking-widest">Демо-версія: замовлення і оплата тестові, гроші не списуються</p>}
 
         <section className="space-y-5">
           <h2 className="mb-4 text-sm font-semibold">Контакти</h2>

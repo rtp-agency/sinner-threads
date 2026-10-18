@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { getOrder, settlePayment } from "@/lib/orders";
 import { demoEnabled } from "@/lib/payments";
+import { orderPath, validOrderToken } from "@/lib/security";
 import { money } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Тестова оплата", robots: { index: false } };
@@ -11,14 +12,18 @@ async function decide(formData: FormData) {
   "use server";
   if (!demoEnabled()) return;
   const id = Number(formData.get("id"));
+  if (!validOrderToken(id, String(formData.get("t") ?? ""))) return;
   const paid = formData.get("outcome") === "paid";
   await settlePayment(id, paid);
-  redirect(`/order/${id}?paid=${paid ? "card" : "failed"}`);
+  redirect(orderPath(id));
 }
 
-export default async function DemoPay({ params }: PageProps<"/pay/demo/[id]">) {
+export default async function DemoPay({ params, searchParams }: PageProps<"/pay/demo/[id]">) {
   if (!demoEnabled()) notFound();
-  const o = await getOrder(Number((await params).id));
+  const id = Number((await params).id);
+  const t = String((await searchParams).t ?? "");
+  if (!validOrderToken(id, t)) notFound();
+  const o = await getOrder(id);
   if (!o || o.payment !== "card") notFound();
 
   return (
@@ -37,6 +42,7 @@ export default async function DemoPay({ params }: PageProps<"/pay/demo/[id]">) {
       {o.status === "awaiting_payment" || o.status === "payment_failed" ? (
         <form action={decide} className="mt-8 grid gap-3">
           <input type="hidden" name="id" value={o.id} />
+          <input type="hidden" name="t" value={t} />
           <button name="outcome" value="paid" className="btn">Оплатити (успіх)</button>
           <button name="outcome" value="failed" className="btn btn-ghost">Відхилити (помилка оплати)</button>
         </form>

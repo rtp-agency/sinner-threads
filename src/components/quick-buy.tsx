@@ -27,14 +27,14 @@ export function QuickBuy({ productId, variants }: { productId: number; variants:
               disabled={out}
               aria-pressed={active}
               onClick={() => { setSel(v.id); setWarn(false); }}
-              className={`num min-h-9 min-w-9 max-w-[8.5rem] truncate border px-2 text-xs ${active ? "border-ink bg-ink text-paper" : "border-ink hover:bg-soft"} ${out ? "cursor-not-allowed border-dashed text-mute line-through opacity-50 hover:bg-transparent" : ""}`}
+              className={`num min-h-10 min-w-10 max-w-[8.5rem] truncate border px-2 text-xs ${active ? "border-ink bg-ink text-paper" : "border-ink hover:bg-soft"} ${out ? "cursor-not-allowed border-dashed text-mute line-through opacity-50 hover:bg-transparent" : ""}`}
             >
               {v.title}
             </button>
           );
         })}
         {!all && variants.length > 7 && (
-          <button type="button" onClick={() => setAll(true)} className="num min-h-9 px-2 text-xs underline underline-offset-4">+{variants.length - 7}</button>
+          <button type="button" onClick={() => setAll(true)} className="num min-h-10 px-2 text-xs underline underline-offset-4">+{variants.length - 7}</button>
         )}
       </div>
       <p role="status" className={`mt-1 min-h-4 text-xs ${warn ? "text-danger" : "text-transparent"}`}>{warn ? "Оберіть розмір" : "."}</p>

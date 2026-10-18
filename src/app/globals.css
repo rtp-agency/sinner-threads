@@ -157,6 +157,7 @@ body {
 .btn-ghost:hover { background: var(--ink); color: var(--paper); }
 
 .field {
+  font-size: 1rem; /* 16px: iOS Safari не зумить сторінку при фокусі */
   width: 100%; min-height: 3rem; padding: .75rem 1rem;
   background: transparent; color: var(--ink); border: 1px solid var(--ink);
 }
@@ -251,3 +252,21 @@ body {
 
 /* Типографіка: Oswald (вузький гротеск з кирилицею) капсом для заголовків. */
 .font-display { font-weight: 600; letter-spacing: .01em; text-transform: uppercase; line-height: 1; }
+
+/* Фонові нитки */
+.bg-threads path { stroke: var(--ink); }
+.flow { stroke-dasharray: 10 14; }
+@media (prefers-reduced-motion: no-preference) {
+  .flow { animation: flow 24s linear infinite; }
+  .flow-b { animation-duration: 36s; animation-direction: reverse; }
+  .drift { animation: drift 28s ease-in-out infinite alternate; will-change: transform; }
+  .drift-b { animation-duration: 34s; animation-delay: -9s; }
+  .drift-c { animation-duration: 40s; animation-delay: -17s; }
+  @keyframes flow { to { stroke-dashoffset: -480; } }
+  @keyframes drift { from { transform: translate3d(0, -18px, 0); } to { transform: translate3d(0, 22px, 0); } }
+}
+
+/* Мобільне: без горизонтального скролу, швидкі тапи без затримки, безпечні зони */
+html, body { overflow-x: clip; }
+a, button, label, input, select, textarea, summary { touch-action: manipulation; }
+.pb-safe { padding-bottom: env(safe-area-inset-bottom); }

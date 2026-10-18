@@ -28,9 +28,9 @@ export function Header() {
           <span className="num min-w-[1.25rem] border border-ink px-1 text-center">{ready ? count : 0}</span>
         </Link>
       </div>
-      <nav aria-label="Основна, мобільна" className="stitch-t flex gap-6 overflow-x-auto px-4 py-2 md:hidden">
+      <nav aria-label="Основна, мобільна" className="stitch-t flex gap-6 overflow-x-auto px-4 md:hidden [scrollbar-width:none]">
         {NAV.map((n) => (
-          <Link key={n.href} href={n.href} className="whitespace-nowrap font-mono text-[11px] uppercase tracking-widest">
+          <Link key={n.href} href={n.href} className="inline-flex min-h-11 items-center whitespace-nowrap font-mono text-xs uppercase tracking-widest">
             {n.label}
           </Link>
         ))}

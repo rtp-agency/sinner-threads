@@ -26,7 +26,7 @@ export function AddToCartMorph({
   const [msg, setMsg] = useState<string>("");
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const reduce = useReducedMotion();
-  const h = size === "sm" ? 40 : 48;
+  const h = size === "sm" ? 44 : 48;
 
   async function click() {
     if (phase === "loading") return;

@@ -2,16 +2,19 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { getOrder } from "@/lib/orders";
 import { money } from "@/lib/format";
+import { validOrderToken } from "@/lib/security";
 
 export const metadata: Metadata = { title: "Ваше замовлення", robots: { index: false } };
 export const dynamic = "force-dynamic";
 
-export default async function OrderDone({ params }: PageProps<"/order/[id]">) {
+export default async function OrderDone({ params, searchParams }: PageProps<"/order/[id]">) {
   const id = Number((await params).id);
-  const o = await getOrder(id);
+  const t = (await searchParams).t;
+  // Без дійсного токена деталі (імʼя, телефон, адреса) не показуємо
+  const o = validOrderToken(id, typeof t === "string" ? t : undefined) ? await getOrder(id) : null;
 
   const head = !o
-    ? { t: `Замовлення №${id}`, d: "Ми не знайшли деталі цього замовлення, але якщо ви його оформлювали, воно вже в роботі." }
+    ? { t: `Замовлення №${id}`, d: "Деталі замовлення доступні за персональним посиланням із підтвердження. Якщо ви оформлювали замовлення, воно вже в роботі." }
     : o.status === "payment_failed"
       ? { t: "Оплата не пройшла", d: "Гроші не списано. Оформіть замовлення ще раз або оберіть оплату при отриманні." }
       : o.status === "awaiting_payment"

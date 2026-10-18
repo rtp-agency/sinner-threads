@@ -76,11 +76,13 @@ type RawCatalog = {
 };
 
 const MARKUP = Number(process.env.RETAIL_MARKUP ?? 1.35);
+// Додаткова націнка магазину поверх роздрібної ціни (1.15 = +15%), округлення вгору до 10 грн
+const UPLIFT = Number(process.env.PRICE_UPLIFT ?? 1.15);
 
 function retail(p: RawProduct): number {
   // Беремо рекомендовану ціну постачальника; якщо її немає або вона нижча за дроп, ставимо націнку
-  if (p.price && p.price > p.drop_price) return Math.round(p.price);
-  return Math.ceil((p.drop_price * MARKUP) / 10) * 10;
+  const base = p.price && p.price > p.drop_price ? p.price : p.drop_price * MARKUP;
+  return Math.ceil((base * UPLIFT) / 10) * 10;
 }
 
 function normalize(p: RawProduct): Product {

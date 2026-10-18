@@ -27,7 +27,7 @@ export default async function Catalog({ searchParams }: PageProps<"/catalog">) {
   const activeCat = cats.find((c) => c.id === f.cat);
 
   const chip = (active: boolean) =>
-    `inline-flex min-h-9 items-center border px-3 font-mono text-xs uppercase tracking-widest ${active ? "border-ink bg-ink text-paper" : "border-ink hover:bg-ink hover:text-paper"}`;
+    `inline-flex min-h-11 shrink-0 items-center whitespace-nowrap border px-3 font-mono text-xs uppercase tracking-widest ${active ? "border-ink bg-ink text-paper" : "border-ink hover:bg-ink hover:text-paper"}`;
 
   return (
     <div className="mx-auto max-w-[1400px] px-4 py-10 md:px-8">
@@ -37,24 +37,26 @@ export default async function Catalog({ searchParams }: PageProps<"/catalog">) {
       </div>
 
       <div className="stitch-t stitch-b mt-8 space-y-4 py-5">
-        <div className="flex flex-wrap gap-2" role="group" aria-label="Категорії">
+        <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] md:mx-0 md:flex-wrap md:overflow-visible md:px-0" role="group" aria-label="Категорії">
           <Link href={toHref(f, { cat: undefined })} className={chip(!f.cat)}>Усе</Link>
           {topCats.map((c) => (
             <Link key={c.id} href={toHref(f, { cat: c.id })} className={chip(f.cat === c.id)}>{c.title}</Link>
           ))}
         </div>
         <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
-          <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Розмір">
+          <div className="-mx-4 flex items-center gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] md:mx-0 md:flex-wrap md:overflow-visible md:px-0" role="group" aria-label="Розмір">
             <span className="mr-1 font-mono text-xs uppercase tracking-widest text-mute">Розмір</span>
             {sizes.slice(0, 12).map((s) => (
               <Link key={s} href={toHref(f, { size: f.size === s ? undefined : s })} className={chip(f.size === s)}>{s}</Link>
             ))}
           </div>
-          <Link href={toHref(f, { stock: !f.stock })} className={chip(!!f.stock)} aria-pressed={!!f.stock}>Тільки в наявності</Link>
-          <div className="flex items-center gap-2 md:ml-auto" role="group" aria-label="Сортування">
-            {SORTS.map((s) => (
-              <Link key={s.l} href={toHref(f, { sort: s.v })} className={chip((f.sort ?? undefined) === s.v)}>{s.l}</Link>
-            ))}
+          <div className="-mx-4 flex items-center gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] md:contents">
+            <Link href={toHref(f, { stock: !f.stock })} className={chip(!!f.stock)} aria-pressed={!!f.stock}>Тільки в наявності</Link>
+            <div className="flex items-center gap-2 md:ml-auto" role="group" aria-label="Сортування">
+              {SORTS.map((s) => (
+                <Link key={s.l} href={toHref(f, { sort: s.v })} className={chip((f.sort ?? undefined) === s.v)}>{s.l}</Link>
+              ))}
+            </div>
           </div>
         </div>
       </div>

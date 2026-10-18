@@ -13,9 +13,9 @@ export function Thread({ className = "" }: { className?: string }) {
         d="M-20 548 C 200 548, 240 110, 440 150 S 660 590, 820 330 S 1000 70, 1220 170"
         stroke="currentColor"
         strokeWidth="1"
-        strokeDasharray="6 8"
         vectorEffect="non-scaling-stroke"
-        opacity=".55"
+        className="flow"
+        opacity=".6"
       />
     </svg>
   );
