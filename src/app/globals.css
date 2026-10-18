@@ -270,3 +270,10 @@ body {
 html, body { overflow-x: clip; }
 a, button, label, input, select, textarea, summary { touch-action: manipulation; }
 .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+
+/* Бігучі літери логотипа за каруселлю: два однакові блоки в ряду, зсув на -50% дає безшовну петлю */
+@media (prefers-reduced-motion: no-preference) {
+  .logo-run { animation: logo-run 70s linear infinite; }
+  .logo-run-rev { animation-direction: reverse; animation-duration: 90s; }
+  @keyframes logo-run { to { transform: translate3d(-100%, 0, 0); } }
+}

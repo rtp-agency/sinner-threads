@@ -13,7 +13,8 @@ export type CoverItem = { id: number; title: string; count: number; image: strin
  * Керування: стрілки, клавіші вліво/вправо, свайп. Рух показує, що категорій більше, ніж видно.
  */
 export function CategoryCoverFlow({ items }: { items: CoverItem[] }) {
-  const [active, setActive] = useState(Math.min(1, items.length - 1));
+  // Починаємо із центральної категорії: з обох боків є сусіди, композиція симетрична
+  const [active, setActive] = useState(Math.floor((items.length - 1) / 2));
   const reduce = useReducedMotion();
   const go = (i: number) => setActive(Math.max(0, Math.min(items.length - 1, i)));
 
@@ -62,7 +63,9 @@ export function CategoryCoverFlow({ items }: { items: CoverItem[] }) {
                 rotateY: isActive ? 0 : off < 0 ? 42 : -42,
                 z: isActive ? 60 : -abs * 90,
                 scale: isActive ? 1 : 1 - abs * 0.06,
-                opacity: abs > 2 ? 0 : 1 - abs * 0.18,
+                // Без прозорості: напівпрозорі картки просвічували одна крізь одну. Глибину дає затемнення.
+                opacity: abs > 2 ? 0 : 1,
+                filter: `brightness(${isActive ? 1 : Math.max(0.35, 1 - abs * 0.28)})`,
               }}
               transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 190, damping: 26 }}
               style={{ zIndex: 20 - abs, pointerEvents: abs > 2 ? "none" : "auto" }}

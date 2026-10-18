@@ -6,6 +6,7 @@ import { visibleCategories } from "@/lib/query";
 import { ProductCard } from "@/components/product-card";
 import { Thread } from "@/components/thread";
 import { CategoryCoverFlow } from "@/components/category-coverflow";
+import { LogoMarquee } from "@/components/logo-marquee";
 
 export default async function Home() {
   const { products, categories } = await getCatalog();
@@ -52,9 +53,12 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1400px] px-4 pt-20 md:px-8" aria-labelledby="cats">
+      <section className="relative mt-20 overflow-hidden py-14" aria-labelledby="cats">
+        <LogoMarquee />
+        <div className="relative z-10 mx-auto max-w-[1400px] px-4 md:px-8">
         <h2 id="cats" className="font-display text-4xl md:text-5xl">Що у нас є</h2>
         <div className="mt-6"><CategoryCoverFlow items={cats} /></div>
+        </div>
       </section>
 
       <section className="mx-auto max-w-[1400px] px-4 pt-24 md:px-8" aria-labelledby="fresh">
